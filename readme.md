@@ -1,7 +1,6 @@
 # ML-based Worm Segmentation ToolBox
 
 
-
-https://github.com/Pyh2002/Worm-Segmentation-ToolBox/assets/72658879/6a3abc37-7c35-4af1-9101-5e867a7f8d4a
+![sample_output](https://github.com/Pyh2002/Worm-Segmentation-ToolBox/assets/72658879/d44eae70-7d81-4934-aa92-e28ef9494fe7)
 
 
