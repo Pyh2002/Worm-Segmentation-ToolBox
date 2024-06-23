@@ -21,6 +21,7 @@
 *.tar
 *.rar
 *.gz
+*.avi
 .czrc
 .vscode/
 __MACOSX/

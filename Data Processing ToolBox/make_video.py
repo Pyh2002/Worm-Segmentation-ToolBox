@@ -16,10 +16,3 @@ def images_to_video(input_folder_path, output_video_path, fps=14.225):
         frame = cv2.imread(img_path)
         video.write(frame)
     video.release()
-
-
-if __name__ == "__main__":
-    video_name = "WormParticles45um-3.0-Wrm2"
-    input_folder_path = video_name + '_overlayed_images'
-    output_video_path = video_name + '_output_video.mp4'
-    images_to_video(input_folder_path, output_video_path)
