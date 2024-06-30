@@ -19,9 +19,9 @@ if __name__ == "__main__":
     video = sys.argv[1]
     video = os.path.normpath(video)
     video_name, extension = os.path.splitext(video)
-    print(video_name, extension)
+    # print(video_name, extension)
 
-    extract_frames(video_name, extension)
+    # extract_frames(video_name, extension)
 
     contours = get_contours_folder(video_name + "_frames",
                                    video_name + "_contours")
@@ -36,8 +36,8 @@ if __name__ == "__main__":
     images_to_video(video_name + '_overlayed_images',
                     video_name + '_output_video.mp4')
 
-    calculate_speed()
     calculate_eccentricity_angle(contours)
+    calculate_speed()
     calculate_movement()
-    create_animation()
-    create_movement_graph()
+    create_animation(video_name)
+    create_movement_graph(video_name)

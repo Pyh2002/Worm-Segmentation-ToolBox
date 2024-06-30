@@ -36,7 +36,7 @@ def calculate_movement():
     processed_data.to_csv('processed_data.csv', index=False)
 
 
-def create_movement_graph():
+def create_movement_graph(video_name):
     raw_data = pd.read_csv('raw_data.csv')
     processed_data = pd.read_csv('processed_data.csv')
     worm_data = raw_data[raw_data['worm_id'] == 0]
@@ -49,7 +49,7 @@ def create_movement_graph():
                           s=processed_data['0.5sec_movement_norm']*10, alpha=0.25)
     plt.xlabel('X position')
     plt.ylabel('Y position')
-    plt.title('Mid position')
+    plt.title(video_name + ' Movement')
     plt.gca().invert_yaxis()
     plt.gca().set_aspect('equal')
 
@@ -57,6 +57,6 @@ def create_movement_graph():
     labels = list(colors.keys())
     handles = [plt.Rectangle((0, 0), 1, 1, color=colors[label], alpha=0.25)
                for label in labels]
-    plt.legend(handles, labels, title="Movement Direction")
+    plt.legend(handles, labels, title= video_name + "Movement Direction")
 
     plt.savefig('movement_graph.png')

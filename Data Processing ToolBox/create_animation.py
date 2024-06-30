@@ -5,7 +5,7 @@ import matplotlib.animation as animation
 from matplotlib.cm import ScalarMappable
 
 
-def create_animation():
+def create_animation(video_name):
     raw_data = pd.read_csv('raw_data.csv')
     processed_data = pd.read_csv('processed_data.csv')
 
@@ -46,7 +46,7 @@ def create_animation():
         ax.invert_yaxis()
         ax.set_xlabel('X position')
         ax.set_ylabel('Y position')
-        ax.set_title('Mid position')
+        ax.set_title(video_name + ' Mid position')
         ax.set_aspect('equal')
         ax.tick_params(axis='both', which='major', labelsize=20)
         if num == len(worm_data['x_mid']) - 1:
@@ -80,7 +80,7 @@ def create_animation():
         ax.invert_yaxis()
         ax.set_xlabel('X position')
         ax.set_ylabel('Y position')
-        ax.set_title('Head position')
+        ax.set_title(video_name + 'Head position')
         ax.set_aspect('equal')
         ax.tick_params(axis='both', which='major', labelsize=20)
         if num == len(worm_data['x_head']) - 1:
