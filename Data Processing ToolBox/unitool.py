@@ -2,7 +2,7 @@ import os
 import sys
 
 from extract_frames import extract_frames
-from process_erosion_dilation import process_erosion_dilation_folder
+from process_image import process_images_and_extract_contours
 from extract_contours import get_contours_folder
 from extract_skeletons import skeletonize_folder
 from generate_endpoints import create_endpoints_folder
@@ -25,18 +25,15 @@ def unitoolMain(subfolder_path, video):
 
     extract_frames(video_name, extension)
 
-    process_erosion_dilation_folder(video_name + "_frames",
-                                    video_name + "_processed_frames")
+    contours = process_images_and_extract_contours(
+        video_name + "_frames", video_name + "_processed_frames")
 
-    contours = get_contours_folder(video_name + "_processed_frames",
-                                   video_name + "_contours")
-
-    skeletonize_folder(video_name + "_frames",
+    skeletonize_folder(video_name + "_processed_frames",
                        video_name + "_skeletonized_masks")
     create_endpoints_folder(subfolder_path,
                             video_name + "_skeletonized_masks", video_name + "_endpoints")
 
-    overlay_folders(video_name + "_frames",
+    overlay_folders(video_name + "_processed_frames",
                     video_name + "_endpoints", video_name + "_overlayed_images")
     images_to_video(video_name + '_overlayed_images',
                     video_name + '_output_video.mp4')
