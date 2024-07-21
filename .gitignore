@@ -6,6 +6,16 @@
 
 # Video files
 *.avi
+*.mp4
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+
+# Data files
+*.csv
+*.xls
 
 # LaTeX related files
 *.aux
@@ -38,8 +48,15 @@
 *.exe
 *.czrc
 
-# Directories to ignore
+# General directories to ignore
 .vscode/
 __MACOSX/
 __pycache__/
+
+# Specific directories to ignore
 Trial*/
+*_contours/
+*_endpoints/
+*_frames/
+*_overlayed_images/
+*_skeletonized_masks/
