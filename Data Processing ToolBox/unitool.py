@@ -13,31 +13,39 @@ from calc_eccentricity import calculate_eccentricity_angle
 from calc_movement import calculate_movement
 from calc_movement import create_movement_graph
 from create_animation import create_animation
+from create_animation import create_trace
+from get_video_info import get_video_info
 
 
-if __name__ == "__main__":
-    video = sys.argv[1]
+def unitoolMain(subfolder_path, video):
     video = os.path.normpath(video)
     video_name, extension = os.path.splitext(video)
-    # print(video_name, extension)
+    print(subfolder_path, video_name, extension)
 
-    # extract_frames(video_name, extension)
+    extract_frames(video_name, extension)
 
     contours = get_contours_folder(video_name + "_frames",
                                    video_name + "_contours")
 
     skeletonize_folder(video_name + "_frames",
                        video_name + "_skeletonized_masks")
-    create_endpoints_folder(
-        video_name + "_skeletonized_masks", video_name + "_endpoints")
+    create_endpoints_folder(subfolder_path,
+                            video_name + "_skeletonized_masks", video_name + "_endpoints")
 
-    overlay_folders(video_name + "_frames",
-                    video_name + "_endpoints", video_name + "_overlayed_images")
-    images_to_video(video_name + '_overlayed_images',
-                    video_name + '_output_video.mp4')
+    # overlay_folders(video_name + "_frames",
+    #                 video_name + "_endpoints", video_name + "_overlayed_images")
+    # images_to_video(video_name + '_overlayed_images',
+    #                 video_name + '_output_video.mp4')
 
-    calculate_eccentricity_angle(contours)
-    calculate_speed()
-    calculate_movement()
-    create_animation(video_name)
-    create_movement_graph(video_name)
+    calculate_eccentricity_angle(subfolder_path, contours)
+    calculate_speed(subfolder_path)
+    calculate_movement(subfolder_path)
+    # create_animation(subfolder_path, video_name)
+    create_movement_graph(subfolder_path, video_name)
+    create_trace(subfolder_path, video_name)
+    get_video_info(video_name, subfolder_path)
+
+
+if __name__ == "__main__":
+    video = sys.argv[1]
+    unitoolMain(os.getcwd(), video)

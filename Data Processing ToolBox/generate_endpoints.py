@@ -43,6 +43,15 @@ def process_endpoint_image(image_path):
 
     worm_data = []
 
+    if num_labels >= 2:
+        worm_data.append({
+            "endpoints": None,
+            "quartile_coords": None,
+            "path_length": None,
+            "worm_id": -1
+        })
+        return worm_data, img
+
     for region in regionprops(labeled_mask):
         worm_mask = labeled_mask == region.label
         endpoint_coords, quartile_coords, path_length, path = analyze_skeleton(
@@ -53,8 +62,8 @@ def process_endpoint_image(image_path):
                 "endpoints": None,
                 "quartile_coords": None,
                 "path_length": 0,
+                "worm_id": 0
             })
-            print("No path found")
             continue
 
         for y, x in endpoint_coords:
@@ -69,17 +78,19 @@ def process_endpoint_image(image_path):
             "endpoints": endpoint_coords,
             "quartile_coords": quartile_coords,
             "path_length": path_length,
+            "worm_id": 1
         })
 
     return worm_data, img
 
 
-def create_endpoints_folder(input_folder_path, output_folder_path):
+def create_endpoints_folder(subfolder_path, input_folder_path, output_folder_path):
     sorted_file_names = sorted(os.listdir(input_folder_path))
+    raw_data_path = os.path.join(subfolder_path, "raw_data.csv")
 
     fieldnames = ['frame_number', 'worm_id', 'y_head', 'x_head', 'y_neck',
                   'x_neck', 'y_mid', 'x_mid', 'y_hip', 'x_hip', 'y_tail', 'x_tail', 'path_length']
-    with open('raw_data.csv', 'w', newline='') as file:
+    with open(raw_data_path, 'w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -95,11 +106,11 @@ def create_endpoints_folder(input_folder_path, output_folder_path):
                 analyzed_img.save(output_image_path)
                 frame_number = int(file_name.split("_")[1].split(".")[0])
 
-                for worm_id, worm in enumerate(worm_data):
-                    if worm["endpoints"] is None or worm["quartile_coords"] is None:
+                for worm in worm_data:
+                    if worm["worm_id"] == -1:
                         data = {
                             "frame_number": frame_number,
-                            "worm_id": worm_id,
+                            "worm_id": -1,
                             "y_head": None,
                             "x_head": None,
                             "y_neck": None,
@@ -110,12 +121,28 @@ def create_endpoints_folder(input_folder_path, output_folder_path):
                             "x_hip": None,
                             "y_tail": None,
                             "x_tail": None,
-                            "path_length": worm["path_length"]
+                            "path_length": None
+                        }
+                    elif worm["worm_id"] == 0:
+                        data = {
+                            "frame_number": frame_number,
+                            "worm_id": 0,
+                            "y_head": None,
+                            "x_head": None,
+                            "y_neck": None,
+                            "x_neck": None,
+                            "y_mid": None,
+                            "x_mid": None,
+                            "y_hip": None,
+                            "x_hip": None,
+                            "y_tail": None,
+                            "x_tail": None,
+                            "path_length": 0
                         }
                     else:
                         data = {
                             "frame_number": frame_number,
-                            "worm_id": worm_id,
+                            "worm_id": worm["worm_id"],
                             "y_head": int(worm["quartile_coords"][0][0]) if len(worm["quartile_coords"]) > 0 else None,
                             "x_head": int(worm["quartile_coords"][0][1]) if len(worm["quartile_coords"]) > 0 else None,
                             "y_neck": int(worm["quartile_coords"][1][0]) if len(worm["quartile_coords"]) > 1 else None,

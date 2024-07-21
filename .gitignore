@@ -1,28 +1,45 @@
-*.html
-*.js
+# Compressed files
 *.zip
-*.tags
+*.tar
+*.rar
+*.gz
+
+# Video files
+*.avi
+
+# LaTeX related files
 *.aux
 *.fdb_latexmk
 *.fls
-*.DS_Store
 *.log
 *.nav
 *.out
 *.snm
 *.toc
+*.synctex.gz
+
+# Temporary/Backup files
 *.swp
 *.vrb
-*.synctex.gz
-*.vrb
+*.vrb  # Duplicate entry, consider removing
+
+# Development files
+*.html
+*.js
 *.lmk
+*.pth
+
+# Tag files
 *.tag*
+*.tags
+
+# System files
+*.DS_Store
 *.exe
-*.tar
-*.rar
-*.gz
-*.avi
-.czrc
+*.czrc
+
+# Directories to ignore
 .vscode/
 __MACOSX/
 __pycache__/
+Trial*/

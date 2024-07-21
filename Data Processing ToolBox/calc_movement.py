@@ -1,11 +1,13 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
-def calculate_movement():
-    data = pd.read_csv('raw_data.csv')
-    processed_data = pd.read_csv('processed_data.csv')
+def calculate_movement(subfolder_path):
+    data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+    processed_data = pd.read_csv(os.path.join(
+        subfolder_path, 'processed_data.csv'))
 
     processed_data['neck_head_direction'] = list(zip(
         data['x_head'] - data['x_neck'], data['y_head'] - data['y_neck']))
@@ -33,20 +35,21 @@ def calculate_movement():
         processed_data['0.5sec_movement_norm'] < movement_threshold, 'still',
         np.where(processed_data['direction_change'] > np.pi/2, 'backward', 'forward'))
 
-    processed_data.to_csv('processed_data.csv', index=False)
+    processed_data.to_csv(os.path.join(
+        subfolder_path, 'processed_data.csv'), index=False)
 
 
-def create_movement_graph(video_name):
-    raw_data = pd.read_csv('raw_data.csv')
-    processed_data = pd.read_csv('processed_data.csv')
-    worm_data = raw_data[raw_data['worm_id'] == 0]
+def create_movement_graph(subfolder_path, video_name):
+    worm_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+    processed_data = pd.read_csv(os.path.join(
+        subfolder_path, 'processed_data.csv'))
 
     plt.figure(figsize=(10, 8))
 
     scatter = plt.scatter(worm_data['x_mid'], worm_data['y_mid'],
                           c=processed_data['direction'].map(
-                              {'forward': 'red', 'backward': 'blue', 'still': 'green'}),
-                          s=processed_data['0.5sec_movement_norm']*10, alpha=0.25)
+        {'forward': 'red', 'backward': 'blue', 'still': 'green'}),
+        s=processed_data['0.5sec_movement_norm']*10, alpha=0.25)
     plt.xlabel('X position')
     plt.ylabel('Y position')
     plt.title(video_name + ' Movement')
@@ -57,6 +60,6 @@ def create_movement_graph(video_name):
     labels = list(colors.keys())
     handles = [plt.Rectangle((0, 0), 1, 1, color=colors[label], alpha=0.25)
                for label in labels]
-    plt.legend(handles, labels, title= video_name + "Movement Direction")
+    plt.legend(handles, labels, title="Movement Direction")
 
-    plt.savefig('movement_graph.png')
+    plt.savefig(os.path.join(subfolder_path, 'movement_graph.png'))

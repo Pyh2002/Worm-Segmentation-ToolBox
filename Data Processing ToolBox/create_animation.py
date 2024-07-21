@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -5,11 +6,12 @@ import matplotlib.animation as animation
 from matplotlib.cm import ScalarMappable
 
 
-def create_animation(video_name):
-    raw_data = pd.read_csv('raw_data.csv')
-    processed_data = pd.read_csv('processed_data.csv')
+def create_animation(subfolder_path, video_name):
+    raw_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+    processed_data = pd.read_csv(os.path.join(
+        subfolder_path, 'processed_data.csv'))
 
-    worm_data = raw_data[raw_data['worm_id'] == 0]
+    worm_data = raw_data[raw_data['worm_id'] == 1]
 
     dpi = 100
     fig_width = 1920 / dpi
@@ -25,10 +27,11 @@ def create_animation(video_name):
     cbar.set_label('Time progression')
 
     def update_mid(num):
-        x_min, x_max = worm_data['x_mid'].min(
-        ) - 50, worm_data['x_mid'].max() + 50
-        y_min, y_max = worm_data['y_mid'].min(
-        ) - 50, worm_data['y_mid'].max() + 50
+        x_min = worm_data['x_mid'].dropna().min() - 50
+        x_max = worm_data['x_mid'].dropna().max() + 50
+        y_min = worm_data['y_mid'].dropna().min() - 50
+        y_max = worm_data['y_mid'].dropna().max() + 50
+
         ax.clear()
         colors = plt.cm.Reds(np.linspace(0, 1, num))
         scatter = ax.scatter(
@@ -59,10 +62,11 @@ def create_animation(video_name):
     ani.save('animation_mid.mp4', writer='ffmpeg', fps=14.225)
 
     def update_head(num):
-        x_min, x_max = worm_data['x_head'].min(
-        ) - 50, worm_data['x_head'].max() + 50
-        y_min, y_max = worm_data['y_head'].min(
-        ) - 50, worm_data['y_head'].max() + 50
+        x_min = worm_data['x_head'].dropna().min() - 50
+        x_max = worm_data['x_head'].dropna().max() + 50
+        y_min = worm_data['y_head'].dropna().min() - 50
+        y_max = worm_data['y_head'].dropna().max() + 50
+
         ax.clear()
         colors = plt.cm.Reds(np.linspace(0, 1, num))
         scatter = ax.scatter(
@@ -91,3 +95,36 @@ def create_animation(video_name):
         0, len(worm_data['x_head'])), interval=10, blit=True)
 
     ani.save('animation_head.mp4', writer='ffmpeg', fps=14.225)
+
+
+def create_trace(subfolder_path, video_name, color_map='viridis'):
+    raw_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+    processed_data = pd.read_csv(os.path.join(
+        subfolder_path, 'processed_data.csv'))
+    worm_data = raw_data[raw_data['worm_id'] == 1]
+    num_points = len(worm_data['x_mid'])
+    colors = plt.cm.get_cmap(color_map)(
+        np.linspace(0, 1, len(worm_data['x_mid'])))
+    fig, ax = plt.subplots()
+    scatter = ax.scatter(
+        worm_data['x_mid'][:num_points], worm_data['y_mid'][:num_points], c=colors, s=2)
+    ax.set_xlabel('X position')
+    ax.set_ylabel('Y position')
+    ax.set_title(video_name + ' Mid position')
+    ax.set_aspect('equal')
+    ax.tick_params(axis='both', which='major', labelsize=10)
+
+    if num_points > 1:
+        for i in range(1, num_points):
+            ax.plot(worm_data['x_mid'][i-1:i+1],
+                    worm_data['y_mid'][i-1:i+1], color=colors[i-1])
+
+    cmap = plt.cm.get_cmap(color_map)
+
+    sm = plt.cm.ScalarMappable(
+        cmap=cmap, norm=plt.Normalize(vmin=0, vmax=num_points))
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax, orientation='vertical',
+                        fraction=0.046, pad=0.04)
+    cbar.set_label('Time progression')
+    plt.savefig(os.path.join(subfolder_path, 'trace_graph.png'))

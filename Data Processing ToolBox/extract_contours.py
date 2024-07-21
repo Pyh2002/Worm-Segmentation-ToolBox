@@ -14,6 +14,7 @@ def get_contours(binary_mask_image_path):
 
 
 def get_contours_folder(input_folder_path, output_folder_path):
+    print(input_folder_path, output_folder_path)
     sorted_file_names = sorted(os.listdir(input_folder_path))
     contours = []
     for file_name in sorted_file_names:
