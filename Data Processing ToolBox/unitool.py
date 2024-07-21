@@ -3,7 +3,6 @@ import sys
 
 from extract_frames import extract_frames
 from process_image import process_images_and_extract_contours
-from extract_contours import get_contours_folder
 from extract_skeletons import skeletonize_folder
 from generate_endpoints import create_endpoints_folder
 from generate_overlays import overlay_folders

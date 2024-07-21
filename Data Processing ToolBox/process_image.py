@@ -25,7 +25,7 @@ def process_erosion_dilation(image):
     kernel = np.ones((10, 10), np.uint8)
     dilated_image = cv2.dilate(image, kernel, iterations=1)
     eroded_image = cv2.erode(dilated_image, kernel, iterations=1)
-    return result_image
+    return eroded_image
 
 
 def process_images_and_extract_contours(input_folder_path, output_folder_path):
