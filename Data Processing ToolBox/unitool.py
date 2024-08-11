@@ -1,5 +1,9 @@
 import os
 import sys
+import pandas as pd
+import numpy as np
+import cv2
+import csv
 
 from extract_frames import extract_frames
 from process_image import process_images_and_extract_contours
@@ -22,22 +26,34 @@ def unitoolMain(subfolder_path, video):
     video_name, extension = os.path.splitext(video)
     print(subfolder_path, video_name, extension)
 
-    extract_frames(video_name, extension)
+    # extract_frames(video_name, extension)
 
-    contours = process_images_and_extract_contours(
-        video_name + "_frames", video_name + "_processed_frames")
+    # contours = process_images_and_extract_contours(
+    #     video_name + "_frames", video_name + "_processed_frames")
 
-    skeletonize_folder(video_name + "_processed_frames",
-                       video_name + "_skeletonized_masks")
-    create_endpoints_folder(subfolder_path,
-                            video_name + "_skeletonized_masks", video_name + "_endpoints")
+    # skeletonize_folder(video_name + "_processed_frames",
+    #                    video_name + "_skeletonized_masks")
+    # create_endpoints_folder(subfolder_path,
+    #                         video_name + "_skeletonized_masks", video_name + "_endpoints")
 
-    overlay_folders(video_name + "_processed_frames",
-                    video_name + "_endpoints", video_name + "_overlayed_images")
-    images_to_video(video_name + '_overlayed_images',
-                    video_name + '_output_video.mp4')
+    # overlay_folders(video_name + "_processed_frames",
+    #                 video_name + "_endpoints", video_name + "_overlayed_images")
+    # images_to_video(video_name + '_overlayed_images',
+    #                 video_name + '_output_video.mp4')
 
-    calculate_eccentricity_angle(subfolder_path, contours)
+    # Create a processed_data.csv file
+    # Copy the first two columns from the raw_data.csv file
+
+    # calculate_eccentricity_angle(subfolder_path, contours)
+
+    # raw_data_path = os.path.join(subfolder_path, "raw_data.csv")
+    # processed_data_path = os.path.join(subfolder_path, "processed_data.csv")
+    # raw_data = pd.read_csv(raw_data_path)
+    # processed_data = pd.read_csv(processed_data_path)
+    # processed_data = pd.concat(
+    #     [raw_data[['frame_number', 'worm_id']], processed_data], axis=1)
+    # processed_data.to_csv(processed_data_path, index=False)
+
     calculate_speed(subfolder_path)
     calculate_movement(subfolder_path)
     create_animation(subfolder_path, video_name)

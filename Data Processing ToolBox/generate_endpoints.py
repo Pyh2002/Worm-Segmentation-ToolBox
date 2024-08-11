@@ -14,7 +14,7 @@ def analyze_skeleton(binary_mask):
             binary_mask, kernel, mode="same", boundary="fill", fillvalue=0)
         endpoints = (neighbor_count == 1) & binary_mask
         endpoint_coords = np.argwhere(endpoints)
-        if len(endpoint_coords) > 1:
+        if len(endpoint_coords) == 2:
             path, _ = route_through_array(
                 1 - binary_mask,
                 start=endpoint_coords[0],
@@ -43,15 +43,45 @@ def process_endpoint_image(image_path):
 
     worm_data = []
 
-    if num_labels >= 2:
-        worm_data.append({
-            "endpoints": None,
-            "quartile_coords": None,
-            "path_length": None,
-            "worm_id": -1
-        })
-        return worm_data, img
+    # if num_labels >= 2:
+    #     worm_data.append({
+    #         "endpoints": None,
+    #         "quartile_coords": None,
+    #         "path_length": None,
+    #         "worm_id": -1
+    #     })
+    #     return worm_data, img
 
+    # for region in regionprops(labeled_mask):
+    #     worm_mask = labeled_mask == region.label
+    #     endpoint_coords, quartile_coords, path_length, path = analyze_skeleton(
+    #         worm_mask)
+
+    #     if len(path) == 0:
+    #         worm_data.append({
+    #             "endpoints": None,
+    #             "quartile_coords": None,
+    #             "path_length": 0,
+    #             "worm_id": 0
+    #         })
+    #         continue
+
+    #     for y, x in endpoint_coords:
+    #         draw.ellipse((x - 2, y - 2, x + 2, y + 2),
+    #                      outline="red", width=1)
+
+    #     for y, x in quartile_coords:
+    #         draw.ellipse((x - 2, y - 2, x + 2, y + 2),
+    #                      fill="blue", outline="blue", width=1)
+
+    #     worm_data.append({
+    #         "endpoints": endpoint_coords,
+    #         "quartile_coords": quartile_coords,
+    #         "path_length": path_length,
+    #         "worm_id": 1
+    #     })
+
+    # set the worm_id 1, 2, 3... for each worm
     for region in regionprops(labeled_mask):
         worm_mask = labeled_mask == region.label
         endpoint_coords, quartile_coords, path_length, path = analyze_skeleton(
@@ -78,7 +108,7 @@ def process_endpoint_image(image_path):
             "endpoints": endpoint_coords,
             "quartile_coords": quartile_coords,
             "path_length": path_length,
-            "worm_id": 1
+            "worm_id": len(worm_data) + 1
         })
 
     return worm_data, img
@@ -107,23 +137,7 @@ def create_endpoints_folder(subfolder_path, input_folder_path, output_folder_pat
                 frame_number = int(file_name.split("_")[1].split(".")[0])
 
                 for worm in worm_data:
-                    if worm["worm_id"] == -1:
-                        data = {
-                            "frame_number": frame_number,
-                            "worm_id": -1,
-                            "y_head": None,
-                            "x_head": None,
-                            "y_neck": None,
-                            "x_neck": None,
-                            "y_mid": None,
-                            "x_mid": None,
-                            "y_hip": None,
-                            "x_hip": None,
-                            "y_tail": None,
-                            "x_tail": None,
-                            "path_length": None
-                        }
-                    elif worm["worm_id"] == 0:
+                    if worm["worm_id"] == 0:
                         data = {
                             "frame_number": frame_number,
                             "worm_id": 0,
