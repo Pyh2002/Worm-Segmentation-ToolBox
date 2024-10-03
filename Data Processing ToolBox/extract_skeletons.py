@@ -27,3 +27,11 @@ def skeletonize_folder(input_folder_path, output_folder_path):
             skeleton *= 255
             skeleton_img = Image.fromarray(skeleton.astype(np.uint8))
             skeleton_img.save(output_image_path)
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 3:
+        print("Usage: python skeletonize_folder <input_folder_path> <output_folder_path>")
+        sys.exit(1)
+    skeletonize_folder(sys.argv[1], sys.argv[2])

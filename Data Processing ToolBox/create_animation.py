@@ -6,12 +6,15 @@ import matplotlib.animation as animation
 from matplotlib.cm import ScalarMappable
 
 
-def create_animation(subfolder_path, video_name):
-    raw_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+def create_animation(idx, start_frame, end_frame, parentfolder_path, video_name):
+    raw_data = pd.read_csv(os.path.join(
+        parentfolder_path, 'modified_raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
-        subfolder_path, 'processed_data.csv'))
+        parentfolder_path, f"processed_data_{idx}.csv"))
 
-    worm_data = raw_data[raw_data['worm_id'] == 1]
+    worm_data = raw_data[(raw_data['worm_id'] == 1) &
+                         (raw_data['frame_number'] >= start_frame) &
+                         (raw_data['frame_number'] <= end_frame)]
 
     dpi = 100
     fig_width = 1920 / dpi
@@ -53,13 +56,13 @@ def create_animation(subfolder_path, video_name):
         ax.set_aspect('equal')
         ax.tick_params(axis='both', which='major', labelsize=20)
         if num == len(worm_data['x_mid']) - 1:
-            plt.savefig('mid_position_graph.png')
+            plt.savefig(f'mid_position_graph_{idx}.png')
         return scatter,
 
     ani = animation.FuncAnimation(fig, update_mid, frames=range(
         0, len(worm_data['x_mid'])), interval=10, blit=True)
 
-    ani.save('animation_mid.mp4', writer='ffmpeg', fps=14.225)
+    ani.save(f'animation_mid_{idx}.mp4', writer='ffmpeg', fps=14.225)
 
     def update_head(num):
         x_min = worm_data['x_head'].dropna().min() - 50
@@ -84,24 +87,26 @@ def create_animation(subfolder_path, video_name):
         ax.invert_yaxis()
         ax.set_xlabel('X position')
         ax.set_ylabel('Y position')
-        ax.set_title(video_name + 'Head position')
+        ax.set_title(video_name + ' Head position')
         ax.set_aspect('equal')
         ax.tick_params(axis='both', which='major', labelsize=20)
         if num == len(worm_data['x_head']) - 1:
-            plt.savefig('head_position_graph.png')
+            plt.savefig(f'head_position_graph_{idx}.png')
         return scatter,
 
     ani = animation.FuncAnimation(fig, update_head, frames=range(
         0, len(worm_data['x_head'])), interval=10, blit=True)
 
-    ani.save('animation_head.mp4', writer='ffmpeg', fps=14.225)
+    ani.save(f'animation_head_{idx}.mp4', writer='ffmpeg', fps=14.225)
 
 
-def create_trace(subfolder_path, video_name, color_map='viridis'):
-    raw_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+def create_trace(idx, start_frame, end_frame, parentfolder_path, video_name, color_map='viridis'):
+    raw_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
-        subfolder_path, 'processed_data.csv'))
-    worm_data = raw_data[raw_data['worm_id'] == 1]
+        parentfolder_path, f"processed_data_{idx}.csv"))
+    worm_data = raw_data[(raw_data['worm_id'] == 1) &
+                         (raw_data['frame_number'] >= start_frame) &
+                         (raw_data['frame_number'] <= end_frame)]
     num_points = len(worm_data['x_mid'])
     colors = plt.cm.get_cmap(color_map)(
         np.linspace(0, 1, len(worm_data['x_mid'])))
@@ -127,4 +132,4 @@ def create_trace(subfolder_path, video_name, color_map='viridis'):
     cbar = fig.colorbar(sm, ax=ax, orientation='vertical',
                         fraction=0.046, pad=0.04)
     cbar.set_label('Time progression')
-    plt.savefig(os.path.join(subfolder_path, 'trace_graph.png'))
+    plt.savefig(os.path.join(parentfolder_path, f'trace_graph_{idx}.png'))

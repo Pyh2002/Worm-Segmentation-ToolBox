@@ -1,17 +1,31 @@
 import cv2
 import os
 import numpy as np
-import csv
+import pandas as pd
 
 
-def calculate_eccentricity_angle(subfolder_path, contours):
-    data = []
+def calculate_eccentricity_angle(start_frame, end_frame, parentfolder_path, contours_dict, processed_data):
+    raw_data_path = os.path.join(parentfolder_path, "modified_raw_data.csv")
+    raw_data = pd.read_csv(raw_data_path)
+    start_index = raw_data[raw_data['frame_number'] == start_frame].index[0]
+    end_index = raw_data[raw_data['frame_number'] == end_frame].index[-1]
+    
+    # print("len(contours_dict): ", len(contours_dict))
+    # print("start_index: ", start_index)
+    # print("end_index: ", end_index)
+    
+    for index in range(start_index, end_index + 1):
+        frame_number = raw_data.loc[index, 'frame_number']
+        worm_id = raw_data.loc[index, 'worm_id']
+        for j in range(len(contours_dict[frame_number])):
+            if (worm_id == 0):
+                processed_data.loc[(processed_data['frame_number'] == frame_number) &
+                                   (processed_data['worm_id'] == worm_id), 'eccentricity'] = 0
+                processed_data.loc[(processed_data['frame_number'] == frame_number) &
+                                   (processed_data['worm_id'] == worm_id), 'angle'] = 0
+                continue
 
-    for contour in contours:
-        # if len(contour) >= 2:
-        #     data.append({'eccentricity': None, 'angle': None})
-        # else:
-        for single_contour in contour:
+            single_contour = contours_dict[frame_number][j]
             moments = cv2.moments(single_contour)
             mu11 = moments["mu11"]
             mu02 = moments["mu02"]
@@ -30,12 +44,9 @@ def calculate_eccentricity_angle(subfolder_path, contours):
             ang = np.arctan2(2 * mu11, (mu20 - mu02)) / 2
             ang *= 180 / np.pi
 
-            data.append({'eccentricity': ecc, 'angle': ang})
+            processed_data.loc[(processed_data['frame_number'] == frame_number) &
+                               (processed_data['worm_id'] == worm_id), 'eccentricity'] = ecc
+            processed_data.loc[(processed_data['frame_number'] == frame_number) &
+                               (processed_data['worm_id'] == worm_id), 'angle'] = ang
 
-    fieldnames = ['eccentricity', 'angle']
-
-    processed_data_path = os.path.join(subfolder_path, 'processed_data.csv')
-    with open(processed_data_path, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+    return processed_data

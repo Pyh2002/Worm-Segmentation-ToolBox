@@ -4,52 +4,82 @@ import matplotlib.pyplot as plt
 import os
 
 
-def calculate_movement(subfolder_path):
-    data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data):
+    raw_data = pd.read_csv(os.path.join(
+        parentfolder_path, 'modified_raw_data.csv'))
+
+    begin_index = raw_data[raw_data['frame_number'] == start_frame].index[0]
+    end_index = raw_data[raw_data['frame_number'] == end_frame].index[-1]
+
+    # Filter data to the specified frame range
+    data = raw_data.loc[begin_index:end_index]
+
+    # Group by worm_id and calculate movement within each group
+    def calculate_group_movement(group):
+        group['neck_head_direction'] = list(zip(
+            group['x_head'] - group['x_neck'], group['y_head'] - group['y_neck']))
+        group['0.5sec_movement'] = list(zip(
+            group['x_mid'] - group['x_mid'].shift(7), group['y_mid'] - group['y_mid'].shift(7)))
+
+        def calculate_dot_product(v1, v2):
+            return v1[0]*v2[0] + v1[1]*v2[1]
+
+        def calculate_norm(v):
+            return np.sqrt(v[0]**2 + v[1]**2)
+
+        group['0.5sec_movement_norm'] = group['0.5sec_movement'].apply(
+            calculate_norm)
+
+        movement_threshold = group['0.5sec_movement_norm'].mean() / 2
+
+        def calculate_direction_change(row):
+            neck_head_norm = calculate_norm(row['neck_head_direction'])
+            movement_norm = calculate_norm(row['0.5sec_movement'])
+            if neck_head_norm == 0 or movement_norm == 0:
+                return 0
+            return np.arccos(
+                calculate_dot_product(row['neck_head_direction'], row['0.5sec_movement']) / (
+                    neck_head_norm * movement_norm
+                ))
+
+        group['direction_change'] = group.apply(lambda row: calculate_direction_change(
+            row) if row['0.5sec_movement_norm'] >= movement_threshold else 0, axis=1)
+
+        group['direction'] = np.where(
+            group['0.5sec_movement_norm'] < movement_threshold, 'still',
+            np.where(group['direction_change'] > np.pi/2, 'backward', 'forward'))
+
+        return group
+
+    movement_data = data.groupby('worm_id').apply(
+        calculate_group_movement).reset_index(drop=True)
+
+    # Merge the movement data back into the processed_data
+    processed_data = processed_data.merge(
+        movement_data[['frame_number', 'worm_id', 'neck_head_direction', '0.5sec_movement',
+                       '0.5sec_movement_norm', 'direction_change', 'direction']],
+        on=['frame_number', 'worm_id'],
+        how='left'
+    )
+
+    return processed_data
+
+
+def create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_name):
+    worm_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
-        subfolder_path, 'processed_data.csv'))
+        parentfolder_path, f"processed_data_{idx}.csv"))
 
-    processed_data['neck_head_direction'] = list(zip(
-        data['x_head'] - data['x_neck'], data['y_head'] - data['y_neck']))
-    processed_data['0.5sec_movement'] = list(zip(
-        data['x_mid'] - data['x_mid'].shift(7), data['y_mid'] - data['y_mid'].shift(7)))
-
-    def calculate_dot_product(v1, v2):
-        return v1[0]*v2[0] + v1[1]*v2[1]
-
-    def calculate_norm(v):
-        return np.sqrt(v[0]**2 + v[1]**2)
-
-    processed_data['0.5sec_movement_norm'] = processed_data['0.5sec_movement'].apply(
-        calculate_norm)
-
-    movement_threshold = processed_data['0.5sec_movement_norm'].mean()/2
-
-    processed_data['direction_change'] = processed_data.apply(lambda row: np.arccos(
-        calculate_dot_product(row['neck_head_direction'], row['0.5sec_movement']) / (
-            calculate_norm(row['neck_head_direction']) *
-            calculate_norm(row['0.5sec_movement'])
-        )) if row['0.5sec_movement_norm'] >= movement_threshold else 0, axis=1)
-
-    processed_data['direction'] = np.where(
-        processed_data['0.5sec_movement_norm'] < movement_threshold, 'still',
-        np.where(processed_data['direction_change'] > np.pi/2, 'backward', 'forward'))
-
-    processed_data.to_csv(os.path.join(
-        subfolder_path, 'processed_data.csv'), index=False)
-
-
-def create_movement_graph(subfolder_path, video_name):
-    worm_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
-    processed_data = pd.read_csv(os.path.join(
-        subfolder_path, 'processed_data.csv'))
-
+    merged_data = pd.merge(worm_data, processed_data, on=[
+                           'frame_number', 'worm_id'], how='inner')
     plt.figure(figsize=(10, 8))
-
-    scatter = plt.scatter(worm_data['x_mid'], worm_data['y_mid'],
-                          c=processed_data['direction'].map(
+    scatter = plt.scatter(merged_data['x_mid'], merged_data['y_mid'],
+                          c=merged_data['direction'].map(
         {'forward': 'red', 'backward': 'blue', 'still': 'green'}),
-        s=processed_data['0.5sec_movement_norm']*10, alpha=0.25)
+        s=merged_data['0.5sec_movement_norm']*10, alpha=0.25)
+
+    # Add a colorbar
+    plt.colorbar(scatter, label='Movement Direction')
     plt.xlabel('X position')
     plt.ylabel('Y position')
     plt.title(video_name + ' Movement')
@@ -62,4 +92,4 @@ def create_movement_graph(subfolder_path, video_name):
                for label in labels]
     plt.legend(handles, labels, title="Movement Direction")
 
-    plt.savefig(os.path.join(subfolder_path, 'movement_graph.png'))
+    plt.savefig(os.path.join(parentfolder_path, f'movement_graph_{idx}.png'))

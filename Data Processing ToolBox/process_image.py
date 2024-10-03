@@ -30,8 +30,8 @@ def process_erosion_dilation(image):
 
 def process_images_and_extract_contours(input_folder_path, output_folder_path):
     sorted_file_names = sorted(os.listdir(input_folder_path))
-    contours_list = []
-    for file_name in sorted_file_names:
+    contours_dict = {}
+    for index, file_name in enumerate(sorted_file_names):
         print(file_name + " processing")
         if file_name.endswith(".png"):
             if not os.path.exists(output_folder_path):
@@ -42,5 +42,13 @@ def process_images_and_extract_contours(input_folder_path, output_folder_path):
             processed_image = process_erosion_dilation(img)
             cv2.imwrite(output_image_path, processed_image)
             contours = extract_contours(processed_image)
-            contours_list.append(contours)
-    return contours_list
+            contours_dict[index] = contours
+    return contours_dict
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 3:
+        print("Usage: python process_image.py <input_folder_path> <output_folder_path>")
+        sys.exit(1)
+    process_images_and_extract_contours(sys.argv[1], sys.argv[2])

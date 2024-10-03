@@ -2,16 +2,15 @@ import os
 import pandas as pd
 
 
-def get_video_info(video_name, subfolder_path):
+def get_video_info(video_name, parentfolder_path):
     processed_data = pd.read_csv(os.path.join(
-        subfolder_path, 'processed_data.csv'))
-    raw_data = pd.read_csv(os.path.join(subfolder_path, 'raw_data.csv'))
+        parentfolder_path, 'processed_data.csv'))
+    raw_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
     video_info = {}
     fps = 14.225
 
-    video_info_path = os.path.join(subfolder_path, 'video_info.csv')
+    video_info_path = os.path.join(parentfolder_path, 'video_info.csv')
 
-    # Calculate video_info
     video_info['video_name'] = video_name
     video_info['total_frames'] = len(raw_data)
     video_info['total_time'] = len(raw_data) / fps
