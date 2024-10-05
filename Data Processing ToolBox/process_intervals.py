@@ -27,7 +27,7 @@ def process_intervals(path_to_images, raw_data_path, intervals_path, mode='auto'
             first_frame = interval_data.iloc[0]
             frame_number_str = f'{int(first_frame["frame_number"]):04d}'
             print(frame_number_str, path_to_images)
-            img_path = f'{path_to_images}/frame_{frame_number_str}_mask.png'
+            img_path = f'{path_to_images}/frame_{frame_number_str}.png'
             img = cv2.imread(img_path)
             cv2.imshow('Select Head', img)
             head_point = cv2.selectROI(
@@ -48,7 +48,7 @@ def process_intervals(path_to_images, raw_data_path, intervals_path, mode='auto'
             if j >= 0:
                 prev_row = interval_data.iloc[j]
             else:
-                # Fallback to the immediate previous frame if no valid frame is found, should not happen in regular cases
+                # Fallback if no valid frame is found, should not happen in regular cases
                 # If it does happen, break the loop and continue with the next interval
                 break
 

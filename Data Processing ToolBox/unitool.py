@@ -6,6 +6,7 @@ import cv2
 import csv
 
 from extract_frames import extract_frames
+from extract_frames import extract_raw_frames
 from process_image import process_images_and_extract_contours
 from extract_skeletons import skeletonize_folder
 from generate_endpoints import create_endpoints_folder
@@ -29,30 +30,31 @@ def unitoolMain(parentfolder_path, video):
     print(parentfolder_path, video_path_name, extension)
 
     # extract_frames(video_path_name, extension)
+    # extract_raw_frames(video_path_name + "_raw", extension)
 
-    contours_dict = process_images_and_extract_contours(
-        video_path_name + "_frames", video_path_name + "_processed_frames")
+    # contours_dict = process_images_and_extract_contours(
+    #     video_path_name + "_frames", video_path_name + "_processed_frames")
 
     # skeletonize_folder(video_path_name + "_processed_frames",
     #                    video_path_name + "_skeletonized_masks")
 
     # create_endpoints_folder(parentfolder_path,
-    #                         video_path_name + "_skeletonized_masks", video_path_name + "_endpoints")
+    #                         video_path_name + "_skeletonized_masks")
 
     # group_images(parentfolder_path + "/raw_data.csv",
     #              parentfolder_path + "/intervals.csv")
 
-    # process_intervals(video_path_name + "/processed_frames",
-    #                   parentfolder_path + "/raw_data.csv",
-    #                   parentfolder_path + "/intervals.csv",
-    #                   mode='auto')
+    process_intervals(video_path_name + "_raw_frames",
+                      parentfolder_path + "/raw_data.csv",
+                      parentfolder_path + "/intervals.csv",
+                      mode='manual')
 
-    # overlay_folders(parentfolder_path,
-    #                 video_path_name + "_processed_frames",
-    #                 video_path_name + "_overlayed_images")
+    overlay_folders(parentfolder_path,
+                    video_path_name + "_processed_frames",
+                    video_path_name + "_overlayed_images")
 
-    # images_to_video(video_path_name + '_overlayed_images',
-    #                 video_path_name + '_output_video.mp4')
+    images_to_video(video_path_name + '_overlayed_images',
+                    video_path_name + '_output_video.mp4')
 
     # Create a processed_data.csv file
     # Copy the first two columns from the raw_data.csv file
@@ -85,10 +87,12 @@ def unitoolMain(parentfolder_path, video):
         processed_data = calculate_movement(
             start_frame, end_frame, parentfolder_path, processed_data)
         processed_data.to_csv(processed_data_path, index=False)
-        create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_path_name)
+        create_movement_graph(idx, start_frame, end_frame,
+                              parentfolder_path, video_path_name)
         # create_animation(idx, start_frame, end_frame, parentfolder_path, video_path_name)
-        create_trace(idx, start_frame, end_frame, parentfolder_path, video_path_name)
-        
+        create_trace(idx, start_frame, end_frame,
+                     parentfolder_path, video_path_name)
+
     # get_video_info(video_path_name, parentfolder_path)
 
 
