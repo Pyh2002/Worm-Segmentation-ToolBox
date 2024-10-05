@@ -30,7 +30,6 @@ def unitoolMain(parentfolder_path, video):
     print(parentfolder_path, video_path_name, extension)
 
     # extract_frames(video_path_name, extension)
-    # extract_raw_frames(video_path_name + "_raw", extension)
 
     # contours_dict = process_images_and_extract_contours(
     #     video_path_name + "_frames", video_path_name + "_processed_frames")
@@ -43,6 +42,9 @@ def unitoolMain(parentfolder_path, video):
 
     # group_images(parentfolder_path + "/raw_data.csv",
     #              parentfolder_path + "/intervals.csv")
+
+    # extract_raw_frames(parentfolder_path + "/intervals.csv",
+    #                    video_path_name + "_raw", extension)
 
     process_intervals(video_path_name + "_raw_frames",
                       parentfolder_path + "/raw_data.csv",

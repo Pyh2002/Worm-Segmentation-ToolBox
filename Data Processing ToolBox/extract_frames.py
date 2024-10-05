@@ -1,5 +1,6 @@
 import cv2
 import os
+import pandas as pd
 
 
 def extract_frames(video_name, extension):
@@ -26,9 +27,11 @@ def extract_frames(video_name, extension):
     cap.release()
 
 
-def extract_raw_frames(video_name, extension):
+def extract_raw_frames(intervals_path, video_name, extension):
     video_path = video_name + extension
     output_dir = video_name + "_frames"
+
+    intervals = pd.read_csv(intervals_path)
     os.makedirs(output_dir, exist_ok=True)
 
     cap = cv2.VideoCapture(video_path)
@@ -39,9 +42,10 @@ def extract_raw_frames(video_name, extension):
         if not ret:
             break
 
-        print(f"Writing raw frame for frame {frame_count:04d}")
-        frame_filename = f"{output_dir}/frame_{frame_count:04d}.png"
-        cv2.imwrite(frame_filename, frame)
+        if frame_count in intervals['start_frame'].values:
+            print(f"Writing raw frame for frame {frame_count:04d}")
+            frame_filename = f"{output_dir}/frame_{frame_count:04d}.png"
+            cv2.imwrite(frame_filename, frame)
         frame_count += 1
 
     cap.release()
