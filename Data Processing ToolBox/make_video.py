@@ -14,7 +14,8 @@ def images_to_video(input_folder_path, output_video_path, fps=14.225):
     for idx, image in enumerate(images):
         img_path = os.path.join(input_folder_path, image)
         frame = cv2.imread(img_path)
-        cv2.putText(frame, f'Frame: {idx + 1}', (width - 200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, f'Frame: {idx + 1}', (width - 200, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         video.write(frame)
     video.release()
 

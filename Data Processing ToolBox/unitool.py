@@ -2,8 +2,6 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-import cv2
-import csv
 
 from extract_frames import extract_frames
 from extract_frames import extract_raw_frames
@@ -31,8 +29,8 @@ def unitoolMain(parentfolder_path, video):
 
     # extract_frames(video_path_name, extension)
 
-    # contours_dict = process_images_and_extract_contours(
-    #     video_path_name + "_frames", video_path_name + "_processed_frames")
+    contours_dict = process_images_and_extract_contours(
+        video_path_name + "_frames", video_path_name + "_processed_frames")
 
     # skeletonize_folder(video_path_name + "_processed_frames",
     #                    video_path_name + "_skeletonized_masks")
@@ -49,7 +47,8 @@ def unitoolMain(parentfolder_path, video):
     process_intervals(video_path_name + "_raw_frames",
                       parentfolder_path + "/raw_data.csv",
                       parentfolder_path + "/intervals.csv",
-                      mode='manual')
+                      contours_dict,
+                      mode='auto')
 
     overlay_folders(parentfolder_path,
                     video_path_name + "_processed_frames",
@@ -62,7 +61,7 @@ def unitoolMain(parentfolder_path, video):
     # Copy the first two columns from the raw_data.csv file
 
     fieldnames = ['frame_number', 'worm_id', 'eccentricity', 'angle']
-    raw_data_path = os.path.join(parentfolder_path, "raw_data.csv")
+    raw_data_path = os.path.join(parentfolder_path, "modified_raw_data.csv")
     raw_data = pd.read_csv(raw_data_path)
 
     interval_data_path = os.path.join(parentfolder_path, "intervals.csv")
@@ -71,31 +70,36 @@ def unitoolMain(parentfolder_path, video):
     for idx, interval in interval_data.iterrows():
         start_frame = interval['start_frame']
         end_frame = interval['end_frame']
+        worm_id = interval['worm_id']
 
-        interval_data = raw_data[(raw_data['frame_number'] >= start_frame) & (
+        interval_raw_data = raw_data[(raw_data['frame_number'] >= start_frame) & (
             raw_data['frame_number'] <= end_frame)]
 
         processed_data_path = os.path.join(
             parentfolder_path, f"processed_data_{idx}.csv")
-        processed_data = interval_data[['frame_number', 'worm_id']].copy()
+        processed_data = interval_raw_data[interval_raw_data['worm_id'] == worm_id][['frame_number', 'worm_id']].copy()
 
         for field in fieldnames[2:]:
             processed_data[field] = np.nan
 
         processed_data = calculate_eccentricity_angle(
-            start_frame, end_frame, parentfolder_path, contours_dict, processed_data)
+            start_frame, end_frame, parentfolder_path, contours_dict, processed_data, worm_id)
+        
         processed_data = calculate_speed(
-            start_frame, end_frame, parentfolder_path, processed_data)
+            start_frame, end_frame, parentfolder_path, processed_data, worm_id)
+        
         processed_data = calculate_movement(
-            start_frame, end_frame, parentfolder_path, processed_data)
+            start_frame, end_frame, parentfolder_path, processed_data, worm_id, threshold=0.1)
         processed_data.to_csv(processed_data_path, index=False)
+        
         create_movement_graph(idx, start_frame, end_frame,
-                              parentfolder_path, video_path_name)
+                              parentfolder_path, video_path_name, worm_id)
         # create_animation(idx, start_frame, end_frame, parentfolder_path, video_path_name)
         create_trace(idx, start_frame, end_frame,
-                     parentfolder_path, video_path_name)
+                     parentfolder_path, video_path_name, worm_id)
 
-    # get_video_info(video_path_name, parentfolder_path)
+    for index in range(len(interval_data)):
+        get_video_info(video_path_name, parentfolder_path, index)
 
 
 if __name__ == "__main__":

@@ -112,4 +112,4 @@ def create_training_val_test(images,masks,output,val_num,test_num):
         print(f"Moved {filename}")
 
 if __name__ == '__main__':
-    create_training_val_test("TrainingData/PNGImages","TrainingData/SegmentationClass","Training",77,0)
+    create_training_val_test("Original","Training","Output",16,5)

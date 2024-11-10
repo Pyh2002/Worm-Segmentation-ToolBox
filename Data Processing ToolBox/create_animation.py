@@ -100,13 +100,14 @@ def create_animation(idx, start_frame, end_frame, parentfolder_path, video_name)
     ani.save(f'animation_head_{idx}.mp4', writer='ffmpeg', fps=14.225)
 
 
-def create_trace(idx, start_frame, end_frame, parentfolder_path, video_name, color_map='viridis'):
+def create_trace(idx, start_frame, end_frame, parentfolder_path, video_name, worm_id, color_map='viridis'):
     raw_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
         parentfolder_path, f"processed_data_{idx}.csv"))
-    worm_data = raw_data[(raw_data['worm_id'] == 1) &
+    worm_data = raw_data[(raw_data['worm_id'] == worm_id) &
                          (raw_data['frame_number'] >= start_frame) &
-                         (raw_data['frame_number'] <= end_frame)]
+                         (raw_data['frame_number'] <= end_frame) &
+                         (raw_data['worm_status'] != 'Coiling or Splitted')]
     num_points = len(worm_data['x_mid'])
     colors = plt.cm.get_cmap(color_map)(
         np.linspace(0, 1, len(worm_data['x_mid'])))
@@ -117,6 +118,7 @@ def create_trace(idx, start_frame, end_frame, parentfolder_path, video_name, col
     ax.set_ylabel('Y position')
     ax.set_title(video_name + ' Mid position')
     ax.set_aspect('equal')
+    ax.invert_yaxis()
     ax.tick_params(axis='both', which='major', labelsize=10)
 
     if num_points > 1:

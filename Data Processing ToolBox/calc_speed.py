@@ -3,13 +3,16 @@ import numpy as np
 import pandas as pd
 
 
-def calculate_speed(start_frame, end_frame, parentfolder_path, processed_data):
-    raw_data = pd.read_csv(os.path.join(
-        parentfolder_path, 'modified_raw_data.csv'))
+def calculate_speed(start_frame, end_frame, parentfolder_path, processed_data, worm_id):
+    raw_data_path = os.path.join(parentfolder_path, "modified_raw_data.csv")
+    raw_data = pd.read_csv(raw_data_path)
+
     begin_index = raw_data[raw_data['frame_number'] == start_frame].index[0]
     end_index = raw_data[raw_data['frame_number'] == end_frame].index[-1]
 
     interval_data = raw_data.loc[begin_index:end_index]
+    interval_data = interval_data[interval_data['worm_status'] != 'Coiling or Splitted']
+    interval_data = interval_data[interval_data['worm_id'] == worm_id]
 
     # Group by worm_id and calculate speed within each group
     def calculate_group_speed(group):

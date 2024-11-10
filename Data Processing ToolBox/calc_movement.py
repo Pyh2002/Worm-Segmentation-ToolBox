@@ -4,17 +4,18 @@ import matplotlib.pyplot as plt
 import os
 
 
-def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data):
+def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data, worm_id, threshold=0.5):
     raw_data = pd.read_csv(os.path.join(
         parentfolder_path, 'modified_raw_data.csv'))
 
     begin_index = raw_data[raw_data['frame_number'] == start_frame].index[0]
     end_index = raw_data[raw_data['frame_number'] == end_frame].index[-1]
 
-    # Filter data to the specified frame range
-    data = raw_data.loc[begin_index:end_index]
+    interval_data = raw_data.loc[begin_index:end_index]
+    interval_data = interval_data[interval_data['worm_status']
+                                  != 'Coiling or Splitted']
+    interval_data = interval_data[interval_data['worm_id'] == worm_id]
 
-    # Group by worm_id and calculate movement within each group
     def calculate_group_movement(group):
         group['neck_head_direction'] = list(zip(
             group['x_head'] - group['x_neck'], group['y_head'] - group['y_neck']))
@@ -30,7 +31,7 @@ def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data
         group['0.5sec_movement_norm'] = group['0.5sec_movement'].apply(
             calculate_norm)
 
-        movement_threshold = group['0.5sec_movement_norm'].mean() / 2
+        movement_threshold = group['0.5sec_movement_norm'].mean() * threshold
 
         def calculate_direction_change(row):
             neck_head_norm = calculate_norm(row['neck_head_direction'])
@@ -51,7 +52,7 @@ def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data
 
         return group
 
-    movement_data = data.groupby('worm_id').apply(
+    movement_data = interval_data.groupby('worm_id').apply(
         calculate_group_movement).reset_index(drop=True)
 
     # Merge the movement data back into the processed_data
@@ -65,13 +66,17 @@ def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data
     return processed_data
 
 
-def create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_name):
-    worm_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
+def create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_name, worm_id):
+    worm_data = pd.read_csv(os.path.join(
+        parentfolder_path, 'modified_raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
         parentfolder_path, f"processed_data_{idx}.csv"))
 
     merged_data = pd.merge(worm_data, processed_data, on=[
                            'frame_number', 'worm_id'], how='inner')
+    merged_data = merged_data[merged_data['worm_id'] == worm_id]
+    merged_data = merged_data[merged_data['worm_status']
+                              != 'Coiling or Splitted']
     plt.figure(figsize=(10, 8))
     scatter = plt.scatter(merged_data['x_mid'], merged_data['y_mid'],
                           c=merged_data['direction'].map(
@@ -93,3 +98,4 @@ def create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_
     plt.legend(handles, labels, title="Movement Direction")
 
     plt.savefig(os.path.join(parentfolder_path, f'movement_graph_{idx}.png'))
+    plt.close()

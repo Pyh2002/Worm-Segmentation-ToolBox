@@ -2,20 +2,28 @@ import os
 import pandas as pd
 
 
-def get_video_info(video_name, parentfolder_path):
+def get_video_info(video_name, parentfolder_path, index):
     processed_data = pd.read_csv(os.path.join(
-        parentfolder_path, 'processed_data.csv'))
-    raw_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
+        parentfolder_path, f'processed_data_{index}.csv'))
+    raw_data = pd.read_csv(os.path.join(
+        parentfolder_path, 'modified_raw_data.csv'))
+    interval_data = pd.read_csv(os.path.join(
+        parentfolder_path, 'intervals.csv'))
+    start_frame = interval_data['start_frame'].iloc[index]
+    end_frame = interval_data['end_frame'].iloc[index]
+    raw_data = raw_data[(raw_data['frame_number'] >= start_frame) &
+                        (raw_data['frame_number'] <= end_frame)]
     video_info = {}
     fps = 14.225
 
-    video_info_path = os.path.join(parentfolder_path, 'video_info.csv')
+    video_info_path = os.path.join(
+        parentfolder_path, f'video_info_{index}.csv')
 
     video_info['video_name'] = video_name
-    video_info['total_frames'] = len(raw_data)
-    video_info['total_time'] = len(raw_data) / fps
-    video_info['effective_frame'] = len(raw_data[raw_data['worm_id']
-                                                 == 1])
+    video_info['total_frames'] = interval_data['num_frames'].iloc[index]
+    video_info['total_time'] = interval_data['num_frames'].iloc[index] / fps
+    video_info['effective_frames'] = len(raw_data[(raw_data['status'] == 'Regular') |
+                                                  (raw_data['status'] == 'Multiple')])
     video_info['forward_frames'] = len(processed_data[processed_data['direction']
                                                       == 'forward'])
     video_info['backward_frames'] = len(processed_data[processed_data['direction']
@@ -23,15 +31,20 @@ def get_video_info(video_name, parentfolder_path):
     video_info['still_frames'] = len(processed_data[processed_data['direction']
                                                     == 'still'])
     video_info['forward_prop'] = video_info['forward_frames'] / \
-        video_info['effective_frame']
+        video_info['effective_frames']
     video_info['backward_prop'] = video_info['backward_frames'] / \
-        video_info['effective_frame']
+        video_info['effective_frames']
     video_info['still_prop'] = video_info['still_frames'] / \
-        video_info['effective_frame']
-    video_info['possible_coling_worm'] = len(raw_data[raw_data['worm_id']
-                                                      == 0])
-    video_info['possible_mult_worms'] = len(raw_data[raw_data['worm_id']
-                                                     == -1])
+        video_info['effective_frames']
+    video_info['single_worm_frames'] = len(
+        raw_data[raw_data['status'] == 'Regular'])
+    video_info['mult_worms_frames'] = len(
+        raw_data[raw_data['status'] == 'Multiple'])
+    video_info['empty_frames'] = len(raw_data[raw_data['status'] == 'Empty'])
+    video_info['disrupted_frames'] = len(
+        raw_data[raw_data['status'] == 'Disrupted'])
+    video_info['coiling_or_split_frames'] = len(
+        raw_data[raw_data['status'] == 'Coiling or Splitted'])
     video_info['average_1frame_speed'] = processed_data['speed_1frame'].mean()
     video_info['average_1second_speed'] = processed_data['speed_1second'].mean()
     video_info['average_10second_speed'] = processed_data['speed_10second'].mean()

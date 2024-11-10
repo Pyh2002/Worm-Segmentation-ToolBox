@@ -160,10 +160,10 @@ if __name__ == '__main__':
 
     # Device chosen for training and validation
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  
-    val_folder_masks = "/Training/Val/Masks"  # Filepath to validation masks
-    val_folder_images = "/Training/Val/Images"  # Filepath to validation images
-    train_folder_masks = "/Training/Train/Masks"  # Filepath to training masks
-    train_folder_images = "/Training/Train/Images"  # Filepath to training images
+    val_folder_masks = "Training/Val/Masks"  # Filepath to validation masks
+    val_folder_images = "Training/Val/Images"  # Filepath to validation images
+    train_folder_masks = "Training/Train/Masks"  # Filepath to training masks
+    train_folder_images = "Training/Train/Images"  # Filepath to training images
     # Image/Mask transforms before being fed into the model
     data_transform = transforms.Compose([  # Combine multiple transformations
         # transforms.Resize((1024, 1024)),  # Resize to desired dimensions 
