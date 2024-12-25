@@ -80,7 +80,7 @@ def create_endpoints_folder(parentfolder_path, input_folder_path):
                   'x_neck', 'y_mid', 'x_mid', 'y_hip', 'x_hip', 'y_tail', 'x_tail', 'path_length', 'worm_status']
     df = pd.DataFrame(columns=fieldnames)
     for file_name in sorted_input_file_names:
-        print(file_name, 'generating endpoints')
+        print(file_name, 'creating endpoints')
         if file_name.endswith(".png"):
             frame_number = int(file_name.split('_')[1])
             input_image_path = os.path.join(input_folder_path, file_name)

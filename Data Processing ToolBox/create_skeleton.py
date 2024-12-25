@@ -9,10 +9,10 @@ def skeletonize_image(image):
     return skeleton
 
 
-def skeletonize_folder(input_folder_path, output_folder_path):
+def create_skeleton_folder(input_folder_path, output_folder_path):
     sorted_file_names = sorted(os.listdir(input_folder_path))
     for file_name in sorted_file_names:
-        print(file_name + " skeletonizing")
+        print(file_name + " creating skeleton")
         if file_name.endswith(".png"):
             if not os.path.exists(output_folder_path):
                 os.makedirs(output_folder_path)
@@ -32,6 +32,6 @@ def skeletonize_folder(input_folder_path, output_folder_path):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 3:
-        print("Usage: python skeletonize_folder <input_folder_path> <output_folder_path>")
+        print("Usage: python create_skeleton.py <input_folder_path> <output_folder_path>")
         sys.exit(1)
-    skeletonize_folder(sys.argv[1], sys.argv[2])
+    create_skeleton_folder(sys.argv[1], sys.argv[2])

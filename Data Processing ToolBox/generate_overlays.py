@@ -45,7 +45,7 @@ def overlay_folders(parentfolder_path, input_folder_path, output_folder_path):
     for base_file_name in sorted_base_file_names:
         if base_file_name.endswith(".png"):
             frame_number = int(base_file_name.split('_')[1])
-            print(base_file_name + " overlaying")
+            print(base_file_name + " generating overlay")
             if not os.path.exists(output_folder_path):
                 os.makedirs(output_folder_path)
             base_image_path = os.path.join(input_folder_path, base_file_name)

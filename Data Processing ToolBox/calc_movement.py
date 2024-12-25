@@ -66,7 +66,7 @@ def calculate_movement(start_frame, end_frame, parentfolder_path, processed_data
     return processed_data
 
 
-def create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_name, worm_id):
+def generate_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_name, worm_id):
     worm_data = pd.read_csv(os.path.join(
         parentfolder_path, 'modified_raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
@@ -83,11 +83,9 @@ def create_movement_graph(idx, start_frame, end_frame, parentfolder_path, video_
         {'forward': 'red', 'backward': 'blue', 'still': 'green'}),
         s=merged_data['0.5sec_movement_norm']*10, alpha=0.25)
 
-    # Add a colorbar
-    plt.colorbar(scatter, label='Movement Direction')
     plt.xlabel('X position')
     plt.ylabel('Y position')
-    plt.title(video_name + ' Movement')
+    plt.title(video_name + ' Movement ' + str(start_frame) + '-' + str(end_frame) + ': worm_id = ' + str(worm_id))
     plt.gca().invert_yaxis()
     plt.gca().set_aspect('equal')
 

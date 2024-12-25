@@ -14,22 +14,18 @@ def switch_head_tail(row):
     return row_copy
 
 
-def process_intervals(path_to_images, raw_data_path, intervals_path, contours_dict, mode='auto'):
+def create_modified_raw_data(path_to_images, raw_data_path, intervals_path, contours_dict, mode='auto'):
     raw_data = pd.read_csv(raw_data_path)
     intervals = pd.read_csv(intervals_path)
 
     for _, interval in intervals.iterrows():
         # interval example:
         # start_frame,end_frame,num_frames,status,switch_status,worm_id
-        # 429,530,102,Regular,0,1
-        # 551,729,179,Multiple,0,1
-        # 551,729,179,Multiple,0,2
         start_frame = interval['start_frame']
         end_frame = interval['end_frame']
         worm_id = interval['worm_id']
-        # start_frame = 429, end_frame = 530
-        print("start_frame", start_frame)
-        print("end_frame", end_frame)
+        # print("start_frame", start_frame)
+        # print("end_frame", end_frame)
 
         interval_data = raw_data[(raw_data['frame_number'] >= start_frame) & (
             raw_data['frame_number'] <= end_frame) & (raw_data['worm_id'] == worm_id)]
@@ -39,7 +35,7 @@ def process_intervals(path_to_images, raw_data_path, intervals_path, contours_di
             first_frame = interval_data.iloc[0]
 
             contours = contours_dict[start_frame]
-            print("contours", len(contours))
+            # print("contours", len(contours))
             contour = contours[worm_id - 1]
 
             # Create a blank mask with the same size as the image
@@ -56,7 +52,7 @@ def process_intervals(path_to_images, raw_data_path, intervals_path, contours_di
             filled_contour = cv2.dilate(filled_contour, kernel, iterations=1)
 
             frame_number_str = f'{int(first_frame["frame_number"]):04d}'
-            print(frame_number_str, path_to_images)
+            # print(frame_number_str, path_to_images)
             img_path = f'{path_to_images}/frame_{frame_number_str}.png'
             img = cv2.imread(img_path)
 
@@ -74,16 +70,16 @@ def process_intervals(path_to_images, raw_data_path, intervals_path, contours_di
                 'Select Head', img, fromCenter=False, showCrosshair=True)
             cv2.destroyAllWindows()
             head_x, head_y = head_point[0], head_point[1]
-            print("head_x", head_x)
-            print("head_y", head_y)
-            print("first_frame['x_head']", first_frame['x_head'])
-            print("first_frame['y_head']", first_frame['y_head'])
-            print("first_frame['x_tail']", first_frame['x_tail'])
-            print("first_frame['y_tail']", first_frame['y_tail'])
-            print(np.sqrt((first_frame['x_head'] - head_x)
-                  ** 2 + (first_frame['y_head'] - head_y)**2))
-            print(np.sqrt((first_frame['x_tail'] - head_x)
-                  ** 2 + (first_frame['y_tail'] - head_y)**2))
+            # print("head_x", head_x)
+            # print("head_y", head_y)
+            # print("first_frame['x_head']", first_frame['x_head'])
+            # print("first_frame['y_head']", first_frame['y_head'])
+            # print("first_frame['x_tail']", first_frame['x_tail'])
+            # print("first_frame['y_tail']", first_frame['y_tail'])
+            # print(np.sqrt((first_frame['x_head'] - head_x)
+            #       ** 2 + (first_frame['y_head'] - head_y)**2))
+            # print(np.sqrt((first_frame['x_tail'] - head_x)
+            #       ** 2 + (first_frame['y_tail'] - head_y)**2))
 
             current_head_distances = np.sqrt(
                 (first_frame['x_head'] - head_x)**2 + (first_frame['y_head'] - head_y)**2)
@@ -101,7 +97,7 @@ def process_intervals(path_to_images, raw_data_path, intervals_path, contours_di
                 # Switch the head and tail of the first frame
                 interval_data.iloc[0] = switch_head_tail(interval_data.iloc[0])
 
-        print("interval_data", len(interval_data))
+        # print("interval_data", len(interval_data))
         for i in range(1, len(interval_data)):
             j = i - 1
             while j >= 0 and (interval_data.iloc[j]['worm_status'] == 'Coiling or Splitted'):

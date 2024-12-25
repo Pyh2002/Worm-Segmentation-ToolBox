@@ -13,7 +13,6 @@ def get_dilation_AOI(image):
 def dilate_images_AOI_folder(input_folder_path, output_folder_path):
     sorted_file_names = sorted(os.listdir(input_folder_path))
     for file_name in sorted_file_names:
-        print(file_name + " processing")
         if file_name.endswith(".png"):
             if not os.path.exists(output_folder_path):
                 os.makedirs(output_folder_path)
@@ -42,7 +41,6 @@ def get_rectangle_AOI(image):
 def rectangle_AOI_folder(input_folder_path, output_folder_path):
     sorted_file_names = sorted(os.listdir(input_folder_path))
     for file_name in sorted_file_names:
-        print(file_name + " processing")
         if file_name.endswith(".png"):
             if not os.path.exists(output_folder_path):
                 os.makedirs(output_folder_path)

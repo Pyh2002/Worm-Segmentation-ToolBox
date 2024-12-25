@@ -6,7 +6,7 @@ import matplotlib.animation as animation
 from matplotlib.cm import ScalarMappable
 
 
-def create_animation(idx, start_frame, end_frame, parentfolder_path, video_name):
+def generate_animation(idx, start_frame, end_frame, parentfolder_path, video_name):
     raw_data = pd.read_csv(os.path.join(
         parentfolder_path, 'modified_raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
@@ -100,7 +100,7 @@ def create_animation(idx, start_frame, end_frame, parentfolder_path, video_name)
     ani.save(f'animation_head_{idx}.mp4', writer='ffmpeg', fps=14.225)
 
 
-def create_trace(idx, start_frame, end_frame, parentfolder_path, video_name, worm_id, color_map='viridis'):
+def generate_trace(idx, start_frame, end_frame, parentfolder_path, video_name, worm_id, color_map='viridis'):
     raw_data = pd.read_csv(os.path.join(parentfolder_path, 'raw_data.csv'))
     processed_data = pd.read_csv(os.path.join(
         parentfolder_path, f"processed_data_{idx}.csv"))
@@ -116,7 +116,7 @@ def create_trace(idx, start_frame, end_frame, parentfolder_path, video_name, wor
         worm_data['x_mid'][:num_points], worm_data['y_mid'][:num_points], c=colors, s=2)
     ax.set_xlabel('X position')
     ax.set_ylabel('Y position')
-    ax.set_title(video_name + ' Mid position')
+    ax.set_title(video_name + ' Mid trace ' + str(start_frame) + '-' + str(end_frame) + ': worm_id = ' + str(worm_id))
     ax.set_aspect('equal')
     ax.invert_yaxis()
     ax.tick_params(axis='both', which='major', labelsize=10)

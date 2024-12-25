@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def group_images(input_csv='raw_data.csv', output_csv='intervals.csv'):
+def create_intervals(input_csv='raw_data.csv', output_csv='intervals.csv'):
     df = pd.read_csv(input_csv, delimiter=',')
 
     intervals = []
